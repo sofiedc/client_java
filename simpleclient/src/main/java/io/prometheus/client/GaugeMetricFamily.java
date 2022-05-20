@@ -33,7 +33,11 @@ public class GaugeMetricFamily extends Collector.MetricFamilySamples {
   private final List<String> labelNames;
 
   public GaugeMetricFamily(String name, String help, double value) {
-    super(name, Collector.Type.GAUGE, help, new ArrayList<Sample>());
+    this(name, help, "", value);
+  }
+
+  public GaugeMetricFamily(String name, String help, String extendedHelp, double value) {
+      super(name, Collector.Type.GAUGE, help, extendedHelp, new ArrayList<Sample>());
     labelNames = Collections.emptyList();
     samples.add(
         new Sample(
@@ -44,7 +48,11 @@ public class GaugeMetricFamily extends Collector.MetricFamilySamples {
   }
 
   public GaugeMetricFamily(String name, String help, List<String> labelNames) {
-    super(name, Collector.Type.GAUGE, help, new ArrayList<Sample>());
+    this(name, help, "", labelNames);
+  }
+
+  public GaugeMetricFamily(String name, String help, String extendedHelp, List<String> labelNames) {
+      super(name, Collector.Type.GAUGE, help, extendedHelp, new ArrayList<Sample>());
     this.labelNames = labelNames;
   }
 

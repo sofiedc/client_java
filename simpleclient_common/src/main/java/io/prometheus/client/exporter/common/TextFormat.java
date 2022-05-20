@@ -14,8 +14,16 @@ public class TextFormat {
 
   /**
    * Write out the text version 0.0.4 of the given MetricFamilySamples.
+   * No extended help will be added.
    */
   public static void write004(Writer writer, Enumeration<Collector.MetricFamilySamples> mfs) throws IOException {
+    write004(writer, mfs, false);
+  }
+
+  /**
+   * Write out the text version 0.0.4 of the given MetricFamilySamples.
+   */
+  public static void write004(Writer writer, Enumeration<Collector.MetricFamilySamples> mfs, boolean addExtendedHelp) throws IOException {
     /* See http://prometheus.io/docs/instrumenting/exposition_formats/
      * for the output format specification. */
     while(mfs.hasMoreElements()) {
@@ -23,8 +31,14 @@ public class TextFormat {
       writer.write("# HELP ");
       writer.write(metricFamilySamples.name);
       writer.write(' ');
-      writeEscapedHelp(writer, metricFamilySamples.help);
+      writeEscapedHelp(writer, metricFamilySamples.help, true);
       writer.write('\n');
+      if (addExtendedHelp && metricFamilySamples.extendedHelp != null && !metricFamilySamples.extendedHelp.isEmpty()) {
+          String extendedHelp = "# " + metricFamilySamples.extendedHelp;
+          extendedHelp = extendedHelp.replace("\n", "\n# ");
+          writeEscapedHelp(writer, extendedHelp, false);
+          writer.write('\n');
+      }
 
       writer.write("# TYPE ");
       writer.write(metricFamilySamples.name);
@@ -55,17 +69,20 @@ public class TextFormat {
     }
   }
 
-  private static void writeEscapedHelp(Writer writer, String s) throws IOException {
-    // In case of a multi-line help text, prefix new lines with #
-    s = s.replace("\n", "\n# ");
+  private static void writeEscapedHelp(Writer writer, String s, boolean escapeNewLine) throws IOException {
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
       switch (c) {
-        case '\\':
-          writer.append("\\\\");
+      case '\\':
+        writer.append("\\\\");
+        break;
+      case '\n':
+        if (escapeNewLine) {
+          writer.append("\\n");
           break;
-        default:
-          writer.append(c);
+        }
+      default:
+        writer.append(c);
       }
     }
   }

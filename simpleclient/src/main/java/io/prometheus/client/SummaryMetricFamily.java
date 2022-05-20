@@ -1,8 +1,8 @@
 package io.prometheus.client;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Summary metric family, for custom collectors and exporters.
@@ -34,17 +34,30 @@ public class SummaryMetricFamily extends Collector.MetricFamilySamples {
   private final List<Double> quantiles;
 
   public SummaryMetricFamily(String name, String help, double count, double sum) {
-    super(name, Collector.Type.SUMMARY, help, new ArrayList<Sample>());
+    this(name, help, "", count, sum);
+  }
+
+  public SummaryMetricFamily(String name, String help, String extendedHelp, double count, double sum) {
+    super(name, Collector.Type.SUMMARY, help, extendedHelp, new ArrayList<Sample>());
     this.labelNames = Collections.emptyList();
     this.quantiles = Collections.emptyList();
     addMetric(Collections.<String>emptyList(), count, sum);
   }
 
   public SummaryMetricFamily(String name, String help, List<String> labelNames) {
-    this(name, help, labelNames, Collections.<Double>emptyList());
+    this(name, help, "", labelNames);
   }
-  public SummaryMetricFamily(String name, String help, List<String> labelNames, List<Double>quantiles) {
-    super(name, Collector.Type.SUMMARY, help, new ArrayList<Sample>());
+
+  public SummaryMetricFamily(String name, String help, String extendedHelp, List<String> labelNames) {
+    this(name, help, extendedHelp, labelNames, Collections.<Double> emptyList());
+  }
+
+  public SummaryMetricFamily(String name, String help, List<String> labelNames, List<Double> quantiles) {
+    this(name, help, "", labelNames, quantiles);
+  }
+
+  public SummaryMetricFamily(String name, String help, String extendedHelp, List<String> labelNames, List<Double> quantiles) {
+    super(name, Collector.Type.SUMMARY, help, extendedHelp, new ArrayList<Sample>());
     this.labelNames = labelNames;
     this.quantiles = quantiles;
   }

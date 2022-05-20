@@ -28,20 +28,30 @@ public class TextFormatTest {
   }
 
   @Test
-  public void testGaugeOutput() throws IOException {
-    Gauge noLabels = Gauge.build().name("nolabels").help("help").register(registry);
+  public void testGaugeOutput_NoExtendedHelp() throws IOException {
+    Gauge noLabels = Gauge.build().name("nolabels").help("help").extendedHelp("extendedHelp").register(registry);
     noLabels.inc();
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP nolabels help\n"
                  + "# TYPE nolabels gauge\n"
                  + "nolabels 1.0\n", writer.toString());
   }
 
   @Test
+  public void testGaugeOutput_WithExtendedHelp() throws IOException {
+    Gauge noLabels = Gauge.build().name("nolabels").help("help").extendedHelp("extendedHelp\nsomeMoreExtendedHelp").register(registry);
+    noLabels.inc();
+    TextFormat.write004(writer, registry.metricFamilySamples(), true);
+    assertEquals("# HELP nolabels help\n# extendedHelp\n# someMoreExtendedHelp\n"
+        + "# TYPE nolabels gauge\n"
+        + "nolabels 1.0\n", writer.toString());
+  }
+
+  @Test
   public void testValueInfinity() throws IOException {
     Gauge noLabels = Gauge.build().name("nolabels").help("help").register(registry);
     noLabels.set(Double.POSITIVE_INFINITY);
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP nolabels help\n"
                  + "# TYPE nolabels gauge\n"
                  + "nolabels +Inf\n", writer.toString());
@@ -51,7 +61,7 @@ public class TextFormatTest {
   public void testCounterOutput() throws IOException {
     Counter noLabels = Counter.build().name("nolabels").help("help").register(registry);
     noLabels.inc();
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP nolabels help\n"
                  + "# TYPE nolabels counter\n"
                  + "nolabels 1.0\n", writer.toString());
@@ -69,13 +79,13 @@ public class TextFormatTest {
         ArrayList<MetricFamilySamples.Sample> samples = new ArrayList<Collector.MetricFamilySamples.Sample>();
         MetricFamilySamples.Sample sample = new MetricFamilySamples.Sample("nolabels", labelNames, labelValues, 1.0, 1518123456L);
         samples.add(sample);
-        mfs.add(new MetricFamilySamples("nolabels", Collector.Type.UNTYPED, "help", samples));
+        mfs.add(new MetricFamilySamples("nolabels", Collector.Type.UNTYPED, "help", "", samples));
         return mfs;
       }
     }
     
     new CustomCollector().register(registry);
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP nolabels help\n"
                  + "# TYPE nolabels untyped\n"
                  + "nolabels 1.0 1518123456\n", writer.toString());
@@ -85,7 +95,7 @@ public class TextFormatTest {
   public void testSummaryOutput() throws IOException {
     Summary noLabels = Summary.build().name("nolabels").help("help").register(registry);
     noLabels.observe(2);
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP nolabels help\n"
                  + "# TYPE nolabels summary\n"
                  + "nolabels_count 1.0\n"
@@ -99,7 +109,7 @@ public class TextFormatTest {
             .labelNames("l").name("labelsAndQuantiles").help("help").register(registry);
     labelsAndQuantiles.labels("a").observe(2);
     writer = new StringWriter();
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP labelsAndQuantiles help\n"
             + "# TYPE labelsAndQuantiles summary\n"
             + "labelsAndQuantiles{l=\"a\",quantile=\"0.5\",} 2.0\n"
@@ -113,7 +123,7 @@ public class TextFormatTest {
   public void testLabelsOutput() throws IOException {
     Gauge labels = Gauge.build().name("labels").help("help").labelNames("l").register(registry);
     labels.labels("a").inc();
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP labels help\n"
                  + "# TYPE labels gauge\n"
                  + "labels{l=\"a\",} 1.0\n", writer.toString());
@@ -123,7 +133,7 @@ public class TextFormatTest {
   public void testLabelValuesEscaped() throws IOException {
     Gauge labels = Gauge.build().name("labels").help("help").labelNames("l").register(registry);
     labels.labels("ąćčęntěd a\nb\\c\"d").inc();
-    TextFormat.write004(writer, registry.metricFamilySamples());
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
     assertEquals("# HELP labels help\n"
                  + "# TYPE labels gauge\n"
                  + "labels{l=\"ąćčęntěd a\\nb\\\\c\\\"d\",} 1.0\n", writer.toString());
@@ -133,8 +143,8 @@ public class TextFormatTest {
   public void testHelpEscaped() throws IOException {
     Gauge noLabels = Gauge.build().name("nolabels").help("ąćčęntěd h\"e\\l\np").register(registry);
     noLabels.inc();
-    TextFormat.write004(writer, registry.metricFamilySamples());
-    assertEquals("# HELP nolabels ąćčęntěd h\"e\\\\l\n# p\n"
+    TextFormat.write004(writer, registry.metricFamilySamples(), false);
+    assertEquals("# HELP nolabels ąćčęntěd h\"e\\\\l\\np\n"
                  + "# TYPE nolabels gauge\n"
                  + "nolabels 1.0\n", writer.toString());
   }

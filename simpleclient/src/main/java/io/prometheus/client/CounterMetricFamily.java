@@ -33,7 +33,11 @@ public class CounterMetricFamily extends Collector.MetricFamilySamples {
   private final List<String> labelNames;
 
   public CounterMetricFamily(String name, String help, double value) {
-    super(name, Collector.Type.COUNTER, help, new ArrayList<Sample>());
+    this(name, help, "", value);
+  }
+
+  public CounterMetricFamily(String name, String help, String extendedHelp, double value) {
+      super(name, Collector.Type.COUNTER, help, extendedHelp, new ArrayList<Sample>());
     labelNames = Collections.emptyList();
     samples.add(
         new Sample(
@@ -44,7 +48,11 @@ public class CounterMetricFamily extends Collector.MetricFamilySamples {
   }
 
   public CounterMetricFamily(String name, String help, List<String> labelNames) {
-    super(name, Collector.Type.COUNTER, help, new ArrayList<Sample>());
+    this(name, help, "", labelNames);
+  }
+
+  public CounterMetricFamily(String name, String help, String extendedHelp, List<String> labelNames) {
+    super(name, Collector.Type.COUNTER, help, extendedHelp, new ArrayList<Sample>());
     this.labelNames = labelNames;
   }
 

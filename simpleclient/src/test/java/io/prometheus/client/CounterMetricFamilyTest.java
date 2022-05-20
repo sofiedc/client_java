@@ -2,9 +2,10 @@ package io.prometheus.client;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,12 +22,14 @@ public class CounterMetricFamilyTest {
   @Test
   public void testJavadocExample() {
     class YourCustomCollector extends Collector {
+      @Override
       public List<MetricFamilySamples> collect() {
         List<MetricFamilySamples> mfs = new ArrayList<MetricFamilySamples>();
         // With no labels.
-        mfs.add(new CounterMetricFamily("my_counter", "help", 42));
+        mfs.add(new CounterMetricFamily("my_counter", "help", "extendedHelp", 42));
         // With labels
-        CounterMetricFamily labeledCounter = new CounterMetricFamily("my_other_counter", "help", Arrays.asList("labelname"));
+        CounterMetricFamily labeledCounter =
+            new CounterMetricFamily("my_other_counter", "help", "extendedHelp", Arrays.asList("labelname"));
         labeledCounter.addMetric(Arrays.asList("foo"), 4);
         labeledCounter.addMetric(Arrays.asList("bar"), 5);
         mfs.add(labeledCounter);
@@ -44,9 +47,10 @@ public class CounterMetricFamilyTest {
   @Test
   public void testBuilderStyleUsage() {
     class YourCustomCollector extends Collector {
+      @Override
       public List<MetricFamilySamples> collect() {
         return Arrays.<MetricFamilySamples>asList(
-            new CounterMetricFamily("my_metric", "help", Arrays.asList("name"))
+            new CounterMetricFamily("my_metric", "help", "extendedHelp", Arrays.asList("name"))
                 .addMetric(Arrays.asList("value1"), 1.0)
                 .addMetric(Arrays.asList("value2"), 2.0)
         );

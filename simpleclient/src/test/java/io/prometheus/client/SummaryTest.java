@@ -1,8 +1,8 @@
 package io.prometheus.client;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class SummaryTest {
@@ -24,7 +24,7 @@ public class SummaryTest {
   public void setUp() {
     registry = new CollectorRegistry();
     noLabels = Summary.build().name("nolabels").help("help").register(registry);
-    labels = Summary.build().name("labels").help("help").labelNames("l").register(registry);
+    labels = Summary.build().name("labels").help("help").extendedHelp("extendedHelp").labelNames("l").register(registry);
     noLabelsAndQuantiles = Summary.build()
             .quantile(0.5, 0.05)
             .quantile(0.9, 0.01)
@@ -35,7 +35,7 @@ public class SummaryTest {
             .quantile(0.9, 0.01)
             .quantile(0.99, 0.001)
             .labelNames("l")
-            .name("labels_and_quantiles").help("help").register(registry);
+            .name("labels_and_quantiles").help("help").extendedHelp("extendedHelp").register(registry);
   }
 
   @After
@@ -111,6 +111,7 @@ public class SummaryTest {
   public void testTimer() {
     SimpleTimer.defaultTimeProvider = new SimpleTimer.TimeProvider() {
       long value = (long)(30 * 1e9);
+      @Override
       long nanoTime() {
         value += (long)(10 * 1e9);
         return value;
@@ -183,7 +184,8 @@ public class SummaryTest {
     labelValues.add("a");
     samples.add(new Collector.MetricFamilySamples.Sample("labels_count", labelNames, labelValues, 1.0));
     samples.add(new Collector.MetricFamilySamples.Sample("labels_sum", labelNames, labelValues, 2.0));
-    Collector.MetricFamilySamples mfsFixture = new Collector.MetricFamilySamples("labels", Collector.Type.SUMMARY, "help", samples);
+    Collector.MetricFamilySamples mfsFixture =
+        new Collector.MetricFamilySamples("labels", Collector.Type.SUMMARY, "help", "extendedHelp", samples);
 
     assertEquals(1, mfs.size());
     assertEquals(mfsFixture, mfs.get(0));
@@ -200,7 +202,8 @@ public class SummaryTest {
     samples.add(new Collector.MetricFamilySamples.Sample("labels_and_quantiles", asList("l", "quantile"), asList("a", "0.99"), 2.0));
     samples.add(new Collector.MetricFamilySamples.Sample("labels_and_quantiles_count", asList("l"), asList("a"), 1.0));
     samples.add(new Collector.MetricFamilySamples.Sample("labels_and_quantiles_sum", asList("l"), asList("a"), 2.0));
-    Collector.MetricFamilySamples mfsFixture = new Collector.MetricFamilySamples("labels_and_quantiles", Collector.Type.SUMMARY, "help", samples);
+    Collector.MetricFamilySamples mfsFixture =
+        new Collector.MetricFamilySamples("labels_and_quantiles", Collector.Type.SUMMARY, "help", "extendedHelp", samples);
 
     assertEquals(1, mfs.size());
     assertEquals(mfsFixture, mfs.get(0));

@@ -33,12 +33,18 @@ public abstract class Collector {
     public final String name;
     public final Type type;
     public final String help;
+    public final String extendedHelp;
     public final List<Sample> samples;
 
     public MetricFamilySamples(String name, Type type, String help, List<Sample> samples) {
+      this(name, type, help, "", samples);
+    }
+
+    public MetricFamilySamples(String name, Type type, String help, String extendedHelp, List<Sample> samples) {
       this.name = name;
       this.type = type;
       this.help = help;
+      this.extendedHelp = extendedHelp;
       this.samples = samples;
     }
 
@@ -50,7 +56,8 @@ public abstract class Collector {
       MetricFamilySamples other = (MetricFamilySamples) obj;
       
       return other.name.equals(name) && other.type.equals(type)
-        && other.help.equals(help) && other.samples.equals(samples) ;
+              && other.help.equals(help) && other.extendedHelp.equals(extendedHelp) &&
+              other.samples.equals(samples);
     }
 
     @Override
@@ -59,13 +66,14 @@ public abstract class Collector {
       hash = 37 * hash + name.hashCode();
       hash = 37 * hash + type.hashCode();
       hash = 37 * hash + help.hashCode();
+      hash = 37 * hash + extendedHelp.hashCode();
       hash = 37 * hash + samples.hashCode();
       return hash;
     }
 
     @Override
     public String toString() {
-      return "Name: " + name + " Type: " + type + " Help: " + help + 
+        return "Name: " + name + " Type: " + type + " Help: " + help + " ExtendedHelp: " + extendedHelp +
         " Samples: " + samples;
     }
 

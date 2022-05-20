@@ -1,7 +1,7 @@
 package io.prometheus.client;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class CollectorRegistryTest {
@@ -54,6 +54,7 @@ public class CollectorRegistryTest {
   }
 
   class EmptyCollector extends Collector {
+    @Override
     public List<MetricFamilySamples> collect() {
       return new ArrayList<MetricFamilySamples>();
     }
@@ -140,9 +141,10 @@ public class CollectorRegistryTest {
   }
 
   class MyCollector extends Collector {
+    @Override
     public List<MetricFamilySamples> collect() {
       List<MetricFamilySamples> mfs = new ArrayList<MetricFamilySamples>();
-      mfs.add(new GaugeMetricFamily("g", "help", 42));
+      mfs.add(new GaugeMetricFamily("g", "help", "extendedHelp", 42));
       return mfs;
     }
   }
@@ -169,7 +171,7 @@ public class CollectorRegistryTest {
     public List<MetricFamilySamples> collect() {
       collectCallCount++;
       List<MetricFamilySamples> mfs = new ArrayList<MetricFamilySamples>();
-      mfs.add(new GaugeMetricFamily("slow_gauge", "help", 123));
+      mfs.add(new GaugeMetricFamily("slow_gauge", "help", "extendedHelp", 123));
       return mfs;
     }
 
@@ -186,9 +188,9 @@ public class CollectorRegistryTest {
     public List<MetricFamilySamples> collect() {
       collectCallCount++;
       List<MetricFamilySamples> mfs = new ArrayList<MetricFamilySamples>();
-      mfs.add(new GaugeMetricFamily("part_filter_a", "help", 123));
-      mfs.add(new GaugeMetricFamily("part_filter_b", "help", 123));
-      mfs.add(new GaugeMetricFamily("part_filter_c", "help", 123));
+      mfs.add(new GaugeMetricFamily("part_filter_a", "help", "extendedHelp", 123));
+      mfs.add(new GaugeMetricFamily("part_filter_b", "help", "extendedHelp", 123));
+      mfs.add(new GaugeMetricFamily("part_filter_c", "help", "extendedHelp", 123));
       return mfs;
     }
 

@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class HistogramTest {
   public void setUp() {
     registry = new CollectorRegistry();
     noLabels = Histogram.build().name("nolabels").help("help").register(registry);
-    labels = Histogram.build().name("labels").help("help").labelNames("l").register(registry);
+    labels = Histogram.build().name("labels").help("help").extendedHelp("extendedHelp").labelNames("l").register(registry);
   }
 
   @After
@@ -106,6 +107,7 @@ public class HistogramTest {
   public void testTimer() {
     SimpleTimer.defaultTimeProvider = new SimpleTimer.TimeProvider() {
       long value = (long)(30 * 1e9);
+      @Override
       long nanoTime() {
         value += (long)(10 * 1e9);
         return value;
@@ -195,7 +197,8 @@ public class HistogramTest {
     }
     samples.add(new Collector.MetricFamilySamples.Sample("labels_count", labelNames, labelValues, 1.0));
     samples.add(new Collector.MetricFamilySamples.Sample("labels_sum", labelNames, labelValues, 2.0));
-    Collector.MetricFamilySamples mfsFixture = new Collector.MetricFamilySamples("labels", Collector.Type.HISTOGRAM, "help", samples);
+    Collector.MetricFamilySamples mfsFixture =
+        new Collector.MetricFamilySamples("labels", Collector.Type.HISTOGRAM, "help", "extendedHelp", samples);
 
     assertEquals(1, mfs.size());
     assertEquals(mfsFixture, mfs.get(0));

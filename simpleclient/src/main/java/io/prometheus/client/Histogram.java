@@ -345,7 +345,7 @@ public class Histogram extends SimpleCollector<Histogram.Child> implements Colle
   @Override
   public List<MetricFamilySamples> describe() {
     return Collections.singletonList(
-            new MetricFamilySamples(fullname, Type.HISTOGRAM, help, Collections.<MetricFamilySamples.Sample>emptyList()));
+        new MetricFamilySamples(fullname, Type.HISTOGRAM, help, extendedHelp, Collections.<MetricFamilySamples.Sample> emptyList()));
   }
 
   double[] getBuckets() {

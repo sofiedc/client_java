@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +71,7 @@ public class GaugeTest {
   @Test
   public void testSetToCurrentTime() {
     Gauge.Child.timeProvider = new Gauge.TimeProvider() {
+      @Override
       long currentTimeMillis() {
         return 42000;
       }
@@ -82,6 +84,7 @@ public class GaugeTest {
   public void testTimer() {
     Gauge.Child.timeProvider = new Gauge.TimeProvider() {
       long value = (long)(30 * 1e9);
+      @Override
       long nanoTime() {
         value += (long)(10 * 1e9);
         return value;
@@ -144,7 +147,8 @@ public class GaugeTest {
     ArrayList<String> labelValues = new ArrayList<String>();
     labelValues.add("a");
     samples.add(new Collector.MetricFamilySamples.Sample("labels", labelNames, labelValues, 1.0));
-    Collector.MetricFamilySamples mfsFixture = new Collector.MetricFamilySamples("labels", Collector.Type.GAUGE, "help", samples);
+    Collector.MetricFamilySamples mfsFixture =
+        new Collector.MetricFamilySamples("labels", Collector.Type.GAUGE, "help", "", samples);
 
     assertEquals(1, mfs.size());
     assertEquals(mfsFixture, mfs.get(0));

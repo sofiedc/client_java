@@ -4,8 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+
 import org.junit.Before;
+import org.junit.Test;
 
 
 public class CounterTest {
@@ -16,7 +17,7 @@ public class CounterTest {
   public void setUp() {
     registry = new CollectorRegistry();
     noLabels = Counter.build().name("nolabels").help("help").register(registry);
-    labels = Counter.build().name("labels").help("help").labelNames("l").register(registry);
+    labels = Counter.build().name("labels").help("help").extendedHelp("extendedHelp").labelNames("l").register(registry);
   }
 
   private double getValue() {
@@ -76,7 +77,8 @@ public class CounterTest {
     ArrayList<String> labelValues = new ArrayList<String>();
     labelValues.add("a");
     samples.add(new Collector.MetricFamilySamples.Sample("labels", labelNames, labelValues, 1.0));
-    Collector.MetricFamilySamples mfsFixture = new Collector.MetricFamilySamples("labels", Collector.Type.COUNTER, "help", samples);
+    Collector.MetricFamilySamples mfsFixture =
+        new Collector.MetricFamilySamples("labels", Collector.Type.COUNTER, "help", "extendedHelp", samples);
 
     assertEquals(1, mfs.size());
     assertEquals(mfsFixture, mfs.get(0));

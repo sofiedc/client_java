@@ -1,10 +1,10 @@
 package io.prometheus.client;
 
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Common functionality for {@link Gauge}, {@link Counter}, {@link Summary} and {@link Histogram}.
@@ -49,6 +49,7 @@ import java.util.List;
 public abstract class SimpleCollector<Child> extends Collector {
   protected final String fullname;
   protected final String help;
+  protected final String extendedHelp;
   protected final List<String> labelNames;
 
   protected final ConcurrentMap<List<String>, Child> children = new ConcurrentHashMap<List<String>, Child>();
@@ -145,14 +146,16 @@ public abstract class SimpleCollector<Child> extends Collector {
   protected abstract Child newChild();
 
   protected List<MetricFamilySamples> familySamplesList(Collector.Type type, List<MetricFamilySamples.Sample> samples) {
-    MetricFamilySamples mfs = new MetricFamilySamples(fullname, type, help, samples);
+    MetricFamilySamples mfs = new MetricFamilySamples(fullname, type, help, extendedHelp, samples);
     List<MetricFamilySamples> mfsList = new ArrayList<MetricFamilySamples>(1);
     mfsList.add(mfs);
     return mfsList;
   }
 
   protected SimpleCollector(Builder b) {
-    if (b.name.isEmpty()) throw new IllegalStateException("Name hasn't been set.");
+    if (b.name.isEmpty()) {
+        throw new IllegalStateException("Name hasn't been set.");
+    }
     String name = b.name;
     if (!b.subsystem.isEmpty()) {
       name = b.subsystem + '_' + name;
@@ -162,8 +165,11 @@ public abstract class SimpleCollector<Child> extends Collector {
     }
     fullname = name;
     checkMetricName(fullname);
-    if (b.help != null && b.help.isEmpty()) throw new IllegalStateException("Help hasn't been set.");
+    if (b.help != null && b.help.isEmpty()) {
+        throw new IllegalStateException("Help hasn't been set.");
+    }
     help = b.help;
+    extendedHelp = b.extendedHelp;
     labelNames = Arrays.asList(b.labelNames);
 
     for (String n: labelNames) {
@@ -184,6 +190,7 @@ public abstract class SimpleCollector<Child> extends Collector {
     String name = "";
     String fullname = "";
     String help = "";
+    String extendedHelp = "";
     String[] labelNames = new String[]{};
     // Some metrics require additional setup before the initialization can be done.
     boolean dontInitializeNoLabelsChild;
@@ -216,6 +223,23 @@ public abstract class SimpleCollector<Child> extends Collector {
       this.help = help;
       return (B)this;
     }
+
+    /**
+     * Set more elaborate documentation for the metric. Optional.
+     * Will be shown if query param doc is set to true on the metrics page.
+     * Note that it's not included by default on the metrics page to remain compliant with the OpenMetrics standard
+     * (doesn't allow a multiline help text).
+     * Refer https://openmetrics.io/ and https://github.com/OpenObservability/OpenMetrics/blob/main/specification/OpenMetrics.md#abnf.
+     * (Remark given on pull request https://github.com/prometheus/client_java/pull/781)
+     * 
+     * @param extendedHelp
+     *          extended help text, never null
+     */
+    public B extendedHelp(String extendedHelp) {
+      this.extendedHelp = extendedHelp;
+      return (B) this;
+    }
+
     /**
      * Set the labelNames of the metric. Optional, defaults to no labels.
      */

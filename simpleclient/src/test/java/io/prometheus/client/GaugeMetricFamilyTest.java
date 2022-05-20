@@ -2,9 +2,10 @@ package io.prometheus.client;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,12 +22,13 @@ public class GaugeMetricFamilyTest {
   @Test
   public void testJavadocExample() {
     class YourCustomCollector extends Collector {
+      @Override
       public List<MetricFamilySamples> collect() {
         List<MetricFamilySamples> mfs = new ArrayList<MetricFamilySamples>();
         // With no labels.
-        mfs.add(new GaugeMetricFamily("my_gauge", "help", 42));
+        mfs.add(new GaugeMetricFamily("my_gauge", "help", "extendedHelp", 42));
         // With labels
-        GaugeMetricFamily labeledGauge = new GaugeMetricFamily("my_other_gauge", "help", Arrays.asList("labelname"));
+        GaugeMetricFamily labeledGauge = new GaugeMetricFamily("my_other_gauge", "help", "extendedHelp", Arrays.asList("labelname"));
         labeledGauge.addMetric(Arrays.asList("foo"), 4);
         labeledGauge.addMetric(Arrays.asList("bar"), 5);
         mfs.add(labeledGauge);
@@ -44,9 +46,10 @@ public class GaugeMetricFamilyTest {
   @Test
   public void testBuilderStyleUsage() {
     class YourCustomCollector extends Collector {
+      @Override
       public List<MetricFamilySamples> collect() {
         return Arrays.<MetricFamilySamples>asList(
-            new GaugeMetricFamily("my_metric", "help", Arrays.asList("name"))
+            new GaugeMetricFamily("my_metric", "help", "extendedHelp", Arrays.asList("name"))
                 .addMetric(Arrays.asList("value1"), 1.0)
                 .addMetric(Arrays.asList("value2"), 2.0)
         );

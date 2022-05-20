@@ -1,7 +1,5 @@
 package io.prometheus.client;
 
-import io.prometheus.client.CKMSQuantiles.Quantile;
-
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +9,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
+import io.prometheus.client.CKMSQuantiles.Quantile;
 
 /**
  * Summary metric, to track the size of events.
@@ -367,7 +367,7 @@ public class Summary extends SimpleCollector<Summary.Child> implements Counter.D
 
   @Override
   public List<MetricFamilySamples> describe() {
-    return Collections.<MetricFamilySamples>singletonList(new SummaryMetricFamily(fullname, help, labelNames));
+    return Collections.<MetricFamilySamples> singletonList(new SummaryMetricFamily(fullname, help, extendedHelp, labelNames));
   }
 
 }

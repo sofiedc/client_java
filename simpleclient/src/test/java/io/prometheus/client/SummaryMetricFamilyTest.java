@@ -2,9 +2,10 @@ package io.prometheus.client;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,12 +22,13 @@ public class SummaryMetricFamilyTest {
   @Test
   public void testJavadocExample() {
 		class YourCustomCollector extends Collector {
-			public List<MetricFamilySamples> collect() {
+			@Override
+      public List<MetricFamilySamples> collect() {
 				List<MetricFamilySamples> mfs = new ArrayList<MetricFamilySamples>();
 				// With no labels.
-				mfs.add(new SummaryMetricFamily("my_summary", "help", 1, 42));
+        mfs.add(new SummaryMetricFamily("my_summary", "help", "extendedHelp", 1, 42));
 				// With labels. Record 95th percentile as 3, and 99th percentile as 5.
-				SummaryMetricFamily labeledSummary = new SummaryMetricFamily("my_other_summary", "help", 
+        SummaryMetricFamily labeledSummary = new SummaryMetricFamily("my_other_summary", "help", "extendedHelp",
 						Arrays.asList("labelname"), Arrays.asList(.95, .99));
 				labeledSummary.addMetric(Arrays.asList("foo"), 2, 10, Arrays.asList(3.0, 5.0));
 				mfs.add(labeledSummary);
@@ -47,9 +49,10 @@ public class SummaryMetricFamilyTest {
 	@Test
 	public void testBuilderStyleUsage() {
 		class YourCustomCollector extends Collector {
-			public List<MetricFamilySamples> collect() {
+			@Override
+      public List<MetricFamilySamples> collect() {
 				return Arrays.<MetricFamilySamples>asList(
-						new SummaryMetricFamily("my_metric", "help", Arrays.asList("name"))
+            new SummaryMetricFamily("my_metric", "help", "extendedHelp", Arrays.asList("name"))
 								.addMetric(Arrays.asList("value1"), 1, 1.0)
 								.addMetric(Arrays.asList("value2"), 2, 2.0)
 				);
